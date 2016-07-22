@@ -40,7 +40,7 @@ def draw(player_ids):
     
     return rounds
     
-n = 64
+n = 7
 rounds = draw(range(n))
 
 matches = n*(n-1) / 2
