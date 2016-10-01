@@ -17,7 +17,7 @@ log = logging.getLogger('scheduler')
 log.setLevel(logging.DEBUG)
 
 #===============================================
-# HANDLERS
+# GENERAL FUNCTIONS 
 #===============================================
 
 def _transform(data):
@@ -89,6 +89,10 @@ def _match(edges):
         log.debug('matching ' + str(len(edges)) + ' edges ...')
 
     return maxWeightMatching(edges, maxcardinality=True)
+
+#===============================================
+# HANDLERS
+#===============================================
 
 def process_schedule(data):
     edges, idx_to_id_h, pair_cost_h = _transform(data)
