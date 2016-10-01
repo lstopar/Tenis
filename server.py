@@ -21,6 +21,9 @@ log.setLevel(logging.DEBUG)
 #===============================================
 
 def _transform(data):
+    if log.isEnabledFor(logging.DEBUG):
+        log.debug('transforming data ...')
+
     id_to_idx_h = {}
     idx_to_id_h = {}
     pair_cost_h = {}
@@ -76,31 +79,24 @@ def _transform(data):
 
         used_pairs.add(pair)
 
+    if log.isEnabledFor(logging.DEBUG):
+        log.debug('Found ' + str(len(id_to_idx_h)) + ' nodes, ' + str(len(edges)) + ' edges ...')
+
     return edges, idx_to_id_h, pair_cost_h
 
 def _match(edges):
     if log.isEnabledFor(logging.DEBUG):
-        log.debug('Original edges:\n' + str(edges))
+        log.debug('matching ' + str(len(edges)) + ' edges ...')
 
-    min_wgt = min([wgt for _,_,wgt in edges])
-    edges = [(i, j, wgt - min_wgt + .1) for i,j,wgt in edges]
-
-    if log.isEnabledFor(logging.DEBUG):
-        log.debug('Matching:\n' + str(edges))
-
-    return maxWeightMatching(edges, maxcardinality=False)
+    return maxWeightMatching(edges, maxcardinality=True)
 
 def process_schedule(data):
     edges, idx_to_id_h, pair_cost_h = _transform(data)
 
-    log.info('Edges:\n' + str(edges))
-
-    #edges = [(0, 1, 1), (0, 2, 3), (0, 3, 0.1), (1, 2, 1), (1, 3, 0.3), (2, 3, 0.2)]
     matches_arr = _match(edges)
-    # matches_arr = maxWeightMatching(edges, maxcardinality=True)
 
-    if log.isEnabledFor(logging.DEBUG): # TODO write this to file
-        log.debug('Generated matches: ' + str(matches_arr))
+    if log.isEnabledFor(logging.DEBUG):
+        log.debug('transforming back ...')
 
     matches = []
     used_matches = Set()
@@ -123,8 +119,6 @@ def process_schedule(data):
             total_cost += pair_cost_h[match]
 
     result = { 'cost': total_cost, 'matches': matches }
-    if log.isEnabledFor(logging.DEBUG):
-        log.debug('Generated result:\n' + str(result))
     return result
 
 #===============================================
@@ -138,18 +132,16 @@ class schedule:
         try:
             data_str = web.data()
 
-            if (log.isEnabledFor(logging.DEBUG)):
-                log.debug('==================================')
-                log.debug('==================================')
-            # if log.isEnabledFor(logging.DEBUG):
-            #     log.debug('Processing request, data=' + data_str + ' ...')      # TODO write this to file
+            if (log.isEnabledFor(logging.INFO)):
+                log.info('received new request ...')
 
             data = json.loads(data_str)
-            
             result = process_schedule(data)
+            
+            if log.isEnabledFor(logging.INFO):
+                log.info('request processed, returning result ...')
 
             web.header('Content-Type', 'application/json')
-
             return json.dumps(result)
         except:
             log.exception('Exception while processing request!')
