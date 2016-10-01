@@ -1,5 +1,5 @@
 #!/bin/bash
 
-PORT=8987
+PORT=8080
 
-python server.py $PORT
+python3 server.py $PORT

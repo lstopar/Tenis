@@ -5,7 +5,7 @@ if len(sys.argv) <= 1:
     print 'Usage: python test.py $FILE_NAME'
     exit(1)
 
-url = 'http://localhost:' + sys.argv[2] + '/' if len(sys.argv) == 3 else 'http://localhost:8987/'
+url = 'http://localhost:' + sys.argv[2] + '/' if len(sys.argv) == 3 else 'http://localhost:8080/'
 fname = sys.argv[1]
 
 def read_file(fname):
