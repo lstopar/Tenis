@@ -81,6 +81,9 @@ def process_schedule(data):
     used_matches = Set()
     total_cost = 0
     for player1_n, player2_n in enumerate(matches_arr):
+        if player2_n == -1:   # player 1 is not matched
+            continue
+
         id1 = id_to_idx_h[player1_n]
         id2 = id_to_idx_h[player2_n]
 
