@@ -1,7 +1,3 @@
-"""
-From: http://www.xs4all.nl/~rjoris/maximummatching.html
-"""
-
 """Weighted maximum matching in general graphs.
 
 The algorithm is taken from "Efficient Algorithms for Finding Maximum
@@ -16,12 +12,24 @@ A C program for maximum weight matching by Ed Rothberg was used extensively
 to validate this new code.
 """
 
+#
+# Changes:
+#
+# 2013-04-07
+#   * Added Python 3 compatibility with contributions from Daniel Saunders.
+#
+# 2008-06-08
+#   * First release.
+#
+
+from __future__ import print_function
+
 # If assigned, DEBUG(str) is called with lots of debug messages.
 DEBUG = None
-"""def DEBUG(s):
-    from sys import stderr
-    print >>stderr, 'DEBUG:', s
-"""
+# def DEBUG(s):
+#     from sys import stderr
+#     print('DEBUG:', s, file=stderr)
+
 
 # Check delta2/delta3 computation after every substage;
 # only works on integer weights, slows down the algorithm to O(n^4).
@@ -59,6 +67,13 @@ def maxWeightMatching(edges, maxcardinality=False):
     # the paper by Galil; read the paper before reading this code.
     #
 
+    # Python 2/3 compatibility.
+    from sys import version as sys_version
+    if sys_version < '3':
+        integer_types = (int, long)
+    else:
+        integer_types = (int,)
+
     # Deal swiftly with empty graphs.
     if not edges:
         return [ ]
@@ -79,13 +94,13 @@ def maxWeightMatching(edges, maxcardinality=False):
     # If p is an edge endpoint,
     # endpoint[p] is the vertex to which endpoint p is attached.
     # Not modified by the algorithm.
-    endpoint = [ edges[p//2][p%2] for p in xrange(2*nedge) ]
+    endpoint = [ edges[p//2][p%2] for p in range(2*nedge) ]
 
     # If v is a vertex,
     # neighbend[v] is the list of remote endpoints of the edges attached to v.
     # Not modified by the algorithm.
-    neighbend = [ [ ] for i in xrange(nvertex) ]
-    for k in xrange(len(edges)):
+    neighbend = [ [ ] for i in range(nvertex) ]
+    for k in range(len(edges)):
         (i, j, w) = edges[k]
         neighbend[i].append(2*k+1)
         neighbend[j].append(2*k)
@@ -120,7 +135,7 @@ def maxWeightMatching(edges, maxcardinality=False):
     # If v is a top-level vertex, v is itself a blossom (a trivial blossom)
     # and inblossom[v] == v.
     # Initially all vertices are top-level trivial blossoms.
-    inblossom = range(nvertex)
+    inblossom = list(range(nvertex))
 
     # If b is a sub-blossom,
     # blossomparent[b] is its immediate parent (sub-)blossom.
@@ -134,7 +149,7 @@ def maxWeightMatching(edges, maxcardinality=False):
 
     # If b is a (sub-)blossom,
     # blossombase[b] is its base VERTEX (i.e. recursive sub-blossom).
-    blossombase = range(nvertex) + nvertex * [ -1 ]
+    blossombase = list(range(nvertex)) + nvertex * [ -1 ]
 
     # If b is a non-trivial (sub-)blossom,
     # blossomendps[b] is a list of endpoints on its connecting edges,
@@ -158,7 +173,7 @@ def maxWeightMatching(edges, maxcardinality=False):
     blossombestedges = (2 * nvertex) * [ None ]
 
     # List of currently unused blossom numbers.
-    unusedblossoms = range(nvertex, 2*nvertex)
+    unusedblossoms = list(range(nvertex, 2*nvertex))
 
     # If v is a vertex,
     # dualvar[v] = 2 * u(v) where u(v) is the v's variable in the dual
@@ -247,7 +262,7 @@ def maxWeightMatching(edges, maxcardinality=False):
             # Swap v and w so that we alternate between both paths.
             if w != -1:
                 v, w = w, v
-       # Remove breadcrumbs.
+        # Remove breadcrumbs.
         for b in path:
             label[b] = 1
         # Return base vertex, if we found one.
@@ -532,7 +547,7 @@ def maxWeightMatching(edges, maxcardinality=False):
         assert min(dualvar[nvertex:]) >= 0
         # 0. all edges have non-negative slack and
         # 1. all matched edges have zero slack;
-        for k in xrange(nedge):
+        for k in range(nedge):
             (i, j, wt) = edges[k]
             s = dualvar[i] + dualvar[j] - 2 * wt
             iblossoms = [ i ]
@@ -547,15 +562,15 @@ def maxWeightMatching(edges, maxcardinality=False):
                 if bi != bj:
                     break
                 s += 2 * dualvar[bi]
-            assert s >= -TOL
+            assert s >= -TOL#0
             if mate[i] // 2 == k or mate[j] // 2 == k:
                 assert mate[i] // 2 == k and mate[j] // 2 == k
-                assert s < TOL
+                assert abs(s) < TOL#== 0
         # 2. all single vertices have zero dual value;
-        for v in xrange(nvertex):
+        for v in range(nvertex):
             assert mate[v] >= 0 or dualvar[v] + vdualoffset == 0
         # 3. all blossoms with positive dual value are full.
-        for b in xrange(nvertex, 2*nvertex):
+        for b in range(nvertex, 2*nvertex):
             if blossombase[b] >= 0 and dualvar[b] > 0:
                 assert len(blossomendps[b]) % 2 == 1
                 for p in blossomendps[b][1::2]:
@@ -565,7 +580,7 @@ def maxWeightMatching(edges, maxcardinality=False):
 
     # Check optimized delta2 against a trivial computation.
     def checkDelta2():
-        for v in xrange(nvertex):
+        for v in range(nvertex):
             if label[inblossom[v]] == 0:
                 bd = None
                 bk = -1
@@ -587,7 +602,7 @@ def maxWeightMatching(edges, maxcardinality=False):
         bd = None
         tbk = -1
         tbd = None
-        for b in xrange(2 * nvertex):
+        for b in range(2 * nvertex):
             if blossomparent[b] == -1 and label[b] == 1:
                 for v in blossomLeaves(b):
                     for p in neighbend[v]:
@@ -611,7 +626,7 @@ def maxWeightMatching(edges, maxcardinality=False):
         assert bd == tbd
 
     # Main loop: continue until no further improvement is possible.
-    for t in xrange(nvertex):
+    for t in range(nvertex):
 
         # Each iteration of this loop is a "stage".
         # A stage finds an augmenting path and uses that to improve
@@ -633,7 +648,7 @@ def maxWeightMatching(edges, maxcardinality=False):
         queue[:] = [ ]
  
         # Label single blossoms/vertices with S and put them in the queue.
-        for v in xrange(nvertex):
+        for v in range(nvertex):
             if mate[v] == -1 and label[inblossom[v]] == 0:
                 assignLabel(v, 1, -1)
 
@@ -734,7 +749,7 @@ def maxWeightMatching(edges, maxcardinality=False):
 
             # Compute delta2: the minimum slack on any edge between
             # an S-vertex and a free vertex.
-            for v in xrange(nvertex):
+            for v in range(nvertex):
                 if label[inblossom[v]] == 0 and bestedge[v] != -1:
                     d = slack(bestedge[v])
                     if deltatype == -1 or d < delta:
@@ -744,11 +759,11 @@ def maxWeightMatching(edges, maxcardinality=False):
 
             # Compute delta3: half the minimum slack on any edge between
             # a pair of S-blossoms.
-            for b in xrange(2 * nvertex):
+            for b in range(2 * nvertex):
                 if ( blossomparent[b] == -1 and label[b] == 1 and
                      bestedge[b] != -1 ):
                     kslack = slack(bestedge[b])
-                    if type(kslack) in (int, long):
+                    if isinstance(kslack, integer_types):
                         assert (kslack % 2) == 0
                         d = kslack // 2
                     else:
@@ -759,7 +774,7 @@ def maxWeightMatching(edges, maxcardinality=False):
                         deltaedge = bestedge[b]
 
             # Compute delta4: minimum z variable of any T-blossom.
-            for b in xrange(nvertex, 2*nvertex):
+            for b in range(nvertex, 2*nvertex):
                 if ( blossombase[b] >= 0 and blossomparent[b] == -1 and
                      label[b] == 2 and
                      (deltatype == -1 or dualvar[b] < delta) ):
@@ -776,14 +791,14 @@ def maxWeightMatching(edges, maxcardinality=False):
                 delta = max(0, min(dualvar[:nvertex]))
 
             # Update dual variables according to delta.
-            for v in xrange(nvertex):
+            for v in range(nvertex):
                 if label[inblossom[v]] == 1:
                     # S-vertex: 2*u = 2*u - 2*delta
                     dualvar[v] -= delta
                 elif label[inblossom[v]] == 2:
                     # T-vertex: 2*u = 2*u + 2*delta
                     dualvar[v] += delta
-            for b in xrange(nvertex, 2*nvertex):
+            for b in range(nvertex, 2*nvertex):
                 if blossombase[b] >= 0 and blossomparent[b] == -1:
                     if label[b] == 1:
                         # top-level S-blossom: z = z + 2*delta
@@ -822,7 +837,7 @@ def maxWeightMatching(edges, maxcardinality=False):
             break
 
         # End of a stage; expand all S-blossoms which have dualvar = 0.
-        for b in xrange(nvertex, 2*nvertex):
+        for b in range(nvertex, 2*nvertex):
             if ( blossomparent[b] == -1 and blossombase[b] >= 0 and
                  label[b] == 1 and dualvar[b] == 0 ):
                 expandBlossom(b, True)
@@ -832,10 +847,10 @@ def maxWeightMatching(edges, maxcardinality=False):
         verifyOptimum()
 
     # Transform mate[] such that mate[v] is the vertex to which v is paired.
-    for v in xrange(nvertex):
+    for v in range(nvertex):
         if mate[v] >= 0:
             mate[v] = endpoint[mate[v]]
-    for v in xrange(nvertex):
+    for v in range(nvertex):
         assert mate[v] == -1 or mate[mate[v]] == v
 
     return mate

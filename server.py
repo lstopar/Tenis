@@ -4,8 +4,7 @@ import json
 import math
 import random as rand
 from sets import Set
-from lib.mwmatching1 import maxWeightMatching
-from lib.edmonds import Graph, Matching, Vertex, find_maximum_matching
+from lib.mwmatching import maxWeightMatching
 
 #===============================================
 # LOGGING
@@ -17,23 +16,18 @@ logging.basicConfig(format=FORMAT)
 log = logging.getLogger('scheduler')
 log.setLevel(logging.DEBUG)
 
-ALGORITHM_ROGER = 'rogerhub'
-ALGORITHM_MWMATCHING = 'mwmatching'
-algorithm = ALGORITHM_MWMATCHING
-
 #===============================================
 # HANDLERS
 #===============================================
 
 def _transform(data):
     id_to_idx_h = {}
+    idx_to_id_h = {}
     pair_cost_h = {}
     edges = []
 
     costs_arr = data
-    # print 'before shuffle: ' + str(costs_arr)
     rand.shuffle(costs_arr)     # shuffle to ensure random results if weights are the same
-    # print 'after shuffle: ' + str(costs_arr)
 
     curr_idx = 0
     used_pairs = Set()
@@ -62,9 +56,11 @@ def _transform(data):
 
         if not id1 in id_to_idx_h:
             id_to_idx_h[id1] = curr_idx
+            idx_to_id_h[curr_idx] = id1
             curr_idx += 1
         if not id2 in id_to_idx_h:
             id_to_idx_h[id2] = curr_idx
+            idx_to_id_h[curr_idx] = id2
             curr_idx += 1
 
         i = id_to_idx_h[id1]
@@ -73,7 +69,6 @@ def _transform(data):
         if i > j:
             i,j = j,i
 
-        #w = -cost
         w = -cost
 
         edges.append((i,j,w))
@@ -81,41 +76,22 @@ def _transform(data):
 
         used_pairs.add(pair)
 
-    edges.sort()
-
-    return edges, id_to_idx_h, pair_cost_h
+    return edges, idx_to_id_h, pair_cost_h
 
 def _match(edges):
-    if algorithm == ALGORITHM_ROGER:
-        graph = Graph()
+    if log.isEnabledFor(logging.DEBUG):
+        log.debug('Original edges:\n' + str(edges))
 
-        nodes = Set()
-        for i, j, w in edges:
-            nodes.add(i)
-            nodes.add(j)
-        
-        for node_id in nodes:
-            if log.isEnabledFor(logging.DEBUG):
-                log.debug('Adding vertex: ' + str(node_id))
-            
-            graph.add_vertex(Vertex(node_id))
-        for i, j, _ in edges:
-            graph.add_edge(graph.find_vertex(i), graph.find_vertex(j))
+    min_wgt = min([wgt for _,_,wgt in edges])
+    edges = [(i, j, wgt - min_wgt + .1) for i,j,wgt in edges]
 
-        matching = Matching.from_graph(graph)
-        result = find_maximum_matching(graph, matching)
+    if log.isEnabledFor(logging.DEBUG):
+        log.debug('Matching:\n' + str(edges))
 
-        res = [0 for _ in nodes]
-        for i in nodes:
-            j = result.get_matched(i)
-            res[i] = j
-
-        return res
-    else:
-        return maxWeightMatching(edges, maxcardinality=True)
+    return maxWeightMatching(edges, maxcardinality=False)
 
 def process_schedule(data):
-    edges, id_to_idx_h, pair_cost_h = _transform(data)
+    edges, idx_to_id_h, pair_cost_h = _transform(data)
 
     log.info('Edges:\n' + str(edges))
 
@@ -133,8 +109,8 @@ def process_schedule(data):
         if player2_n == -1:   # player 1 is not matched
             continue
 
-        id1 = id_to_idx_h[player1_n]
-        id2 = id_to_idx_h[player2_n]
+        id1 = idx_to_id_h[player1_n]
+        id2 = idx_to_id_h[player2_n]
 
         if id1 > id2:
             id1, id2 = id2, id1
@@ -162,8 +138,11 @@ class schedule:
         try:
             data_str = web.data()
 
-            if log.isEnabledFor(logging.DEBUG):
-                log.debug('Processing request, data=' + data_str + ' ...')      # TODO write this to file
+            if (log.isEnabledFor(logging.DEBUG)):
+                log.debug('==================================')
+                log.debug('==================================')
+            # if log.isEnabledFor(logging.DEBUG):
+            #     log.debug('Processing request, data=' + data_str + ' ...')      # TODO write this to file
 
             data = json.loads(data_str)
             
