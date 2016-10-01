@@ -29,6 +29,7 @@ CHECK_DELTA = False
 
 # Check optimality of solution before returning; only works on integer weights.
 CHECK_OPTIMUM = True
+TOL = 1e-7
 
 
 def maxWeightMatching(edges, maxcardinality=False):
@@ -549,7 +550,7 @@ def maxWeightMatching(edges, maxcardinality=False):
             assert s >= 0
             if mate[i] // 2 == k or mate[j] // 2 == k:
                 assert mate[i] // 2 == k and mate[j] // 2 == k
-                assert s == 0
+                assert s < TOL
         # 2. all single vertices have zero dual value;
         for v in xrange(nvertex):
             assert mate[v] >= 0 or dualvar[v] + vdualoffset == 0
