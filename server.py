@@ -172,8 +172,6 @@ class schedule:
             if log.isEnabledFor(logging.INFO):
                 log.info('request processed, returning result ...')
 
-            raise ValueError('Testing error ...')
-
             web.header('Content-Type', 'application/json')
             return json.dumps(result)
         except ValueError, e:
