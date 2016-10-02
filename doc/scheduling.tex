@@ -1,0 +1,109 @@
+\documentclass[a4paper, 11pt]{article}
+\usepackage{comment} % enables the use of multi-line comments (\ifx \fi) 
+\usepackage{lipsum} %This package just generates Lorem Ipsum filler text. 
+\usepackage{fullpage} % changes the margin
+\usepackage{amsfonts}
+\usepackage{mathtools}
+
+\newcommand*\mean[1]{\bar{#1}}
+
+\begin{document}
+%Header-Make sure you update this information!!!!
+
+\section{Hitra razlaga}
+
+Problem nacrtovanja tekem teniske lige resimo z aplikacijo prirejanja na utezenem grafu, ki ga predstavljajo igralci. 
+
+Graf je predstavljen kot $G=(V,E,f)$, kjer je $V$ mnozica tock (igralcev v ligi) v grafu, $E \subseteq V \times V$ mnozica povezav (potencialnih tekem) in $f: E \rightarrow \mathbb{R}$ funkcija, ki doloci utez povezave. Intuitivno vecja kot je vrednost $f(i,j)$ manj je moznosti, da bosta igralca $i$ in $j$ izzrebana.
+
+Algoritem na vhodu vzame mnozico vseh povezav grafa v obliki:
+\begin{equation}
+	\{(i_1,j_1,f(i_1,j_1)), (i_2,j_2,f(i_2,j_2)), ..., (i_m,j_m,f(i_m,j_m))\}
+\end{equation}
+ter vrne izzrebane pare igralcev v obliki:
+\begin{equation}
+	\{(k_1,l_1), (k_2,l_2), ..., (k_n,l_n)\}
+\end{equation}
+
+V \ref{sec:calc}. poglavju so podana pravila kako izracunamo utez posamezne povezave, oziroma kdaj povezave ne damo v graf.
+
+%----------------------------------------------------------------------------------------
+%	IZRACUN FUNKCIJE UTEZI
+%----------------------------------------------------------------------------------------
+
+\section{Izracun utezi za podan par igralcev}
+\label{sec:calc}
+
+Izracun cene potencialne tekme (utez povezave) se izracuna kot utezena vsota. Koeficienti $w_1, w_2, ...$ naj se nastavijo skozi uporabniski vmesnik.
+
+Za podana igralca $i$ in $j$ izracunamo ceno medsebojne tekme po sledeci formuli:
+\begin{equation}
+	f(i,j) = w_1 f_1(i,j) + w_2 f_2(i,j) + w_3 f_3(i,j) + w_4 f_4(i,j) + w_5 f_5(i,j)
+\end{equation}
+
+\subsection{Igralca se ne marata}
+
+Ce se igralca $i$ in $j$ ne marata, ne smeta v nobenem primeru igrati med seboj! Zato se povezave $\left(i,j,f(i,j)\right)$ ne damo v graf.
+
+\subsection{Igralca sta ze igrala v istem krogu}
+
+Ce je to druga tekma v krogu in sta igralca $i$ in $j$ ze igrala v privi tekmi tega kroga, potem povezave $\left(i,j,f(i,j)\right)$ ne damo v graf.
+
+\subsection{Kazen za razliko v zmagah $f_1$}
+
+Razlika v zmagah se kaznuje po sledeci formuli:
+\begin{equation}
+	f_1(i,j) = \left|\frac{1 + z(i)}{2 + z(i) + p(i)} - \frac{1 + z(j)}{2 + z(j) + p(j)}\right|
+\end{equation}
+kjer $z(i)$ predstavlja stevilo zmag igralca $i$ od zacetka lige in $p(i)$ stevilo porazov igralca $i$ od zacetka lige. Ob pricetku lige velja $z(i) = p(i) = 0 \:\: \forall i$.
+
+\subsection{Kazen za razliko v dobljenih gemih $f_2$}
+
+Razlika v dobljenih gemih se kaznuje po formuli:
+\begin{equation}
+	f_2(i,j) = \left|\frac{9 + d(i)}{18 + d(i) + z(i)} - \frac{9 + d(j)}{18 + d(j) + z(j)}\right|
+\end{equation}
+kjer $d(i)$ predstavlja skupno stevilo dobljenih gemov igralca $i$ od zacetka lige in $z(i)$ predstavlja skupno stevilo zgubljenih gemov od zacetka lige.
+
+\subsection{Kazen za medsebojne tekme $f_3$}
+
+\begin{equation}
+	f_3(i,j) = n_{ij}
+\end{equation}
+kjer $n_{ij}$ predstavlja stevilo medsebojnih tekem igralcev $i$ in $j$ od zacetka lige.
+
+\subsection{Kazen za igranje v zadnjem letu $f_4$}
+
+\begin{equation}
+	f_4(i,j) = 
+		\begin{dcases*}
+			\text{1,} & ce sta igralca igrala medsebojno tekmo v zadnjih 12 mesecih \\
+			\text{0,} & v nasprotnem primeru
+		\end{dcases*}
+\end{equation}
+
+\subsection{Popust, ce ima kateri igralec podpovprecno iger $f_5(i,j)$}
+
+\begin{equation}
+	f_5(i,j) = 
+		\begin{dcases*}
+			\text{-1,} & $n(i) < \mean{n}$ ali $n(j) < \mean{n}$ \\
+			\text{0,} & v nasprotnem primeru
+		\end{dcases*}
+\end{equation}
+kjer je $n(i)$ stevilo tekem, ki jih je odigral igralec $i$ od zacetka lige in $\mean{n} = \frac{1}{\left|V\right|}\sum_{k \in V}n(k)$ predstavlja povprecno stevilo tekem na igralca.
+
+%----------------------------------------------------------------------------------------
+%	VREDNOST UTEZI
+%----------------------------------------------------------------------------------------
+
+\section{Prizvete vrednosti koeficientov}
+\begin{eqnarray}
+	w_1 &=& 0 \\ \nonumber
+	w_2 &=& 0 \\ \nonumber
+	w_3 &=& 100 \\ \nonumber
+	w_4 &=& 10 \\ \nonumber
+	w_5 &=& 1
+\end{eqnarray}
+
+\end{document}

@@ -1,0 +1,11 @@
+# exclude all the latex files
+*.log
+*.aux
+*.bbl
+*.blg
+*.lof
+*.lot
+*.out
+*.gz
+*.toc
+*.pdf
