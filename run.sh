@@ -6,4 +6,7 @@ fi
 
 CONF_FILE=$1
 
-python server.py $CONF_FILE
+while true; do
+    python server.py $CONF_FILE
+    sleep 1
+done
