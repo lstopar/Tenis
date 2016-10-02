@@ -1,5 +1,9 @@
 #!/bin/bash
 
-PORT=8986
+if [ $# -ne 1 ]; then
+    echo 'Usage: run.sh $PORT $CONFIG_FILE'
+fi
 
-python server.py $PORT
+CONF_FILE=$1
+
+python server.py $CONF_FILE

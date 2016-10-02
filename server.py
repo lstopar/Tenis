@@ -1,7 +1,10 @@
+import sys
+import os
 import web
 import logging
 import json
 import math
+import time
 import random as rand
 from sets import Set
 from lib.mwmatching import maxWeightMatching
@@ -16,9 +19,33 @@ logging.basicConfig(format=FORMAT)
 log = logging.getLogger('scheduler')
 log.setLevel(logging.DEBUG)
 
+log_dir = None
+
 #===============================================
 # GENERAL FUNCTIONS 
 #===============================================
+
+def _read_conf(fname):
+    log.info('Reading configuration from file: \'' + fname + '\' ...')
+    
+    if not os.path.isfile(fname):
+        print 'Configuration file: \'' + fname + '\' missing!'
+        exit(2)
+
+    f = open(fname, 'r')
+    config_str = f.read()
+    f.close()
+
+    return json.loads(config_str)
+
+def _log_data(data_str):
+    log.info('Writing input data to directory: \'' + log_dir + '\'')
+    fname = log_dir + str(time.time()).replace('.', '') + '-data.log'
+    f = open(fname, 'w')
+    f.write(data_str)
+    f.flush()
+    f.close()
+    log.info('Data logged to file: ' + fname)
 
 def _transform(data):
     if log.isEnabledFor(logging.DEBUG):
@@ -148,10 +175,25 @@ class schedule:
             web.header('Content-Type', 'application/json')
             return json.dumps(result)
         except:
+            _log_data(data_str)
             log.exception('Exception while processing request!')
 
 
 if __name__ == '__main__':
+    if len(sys.argv) <= 1:
+        print 'Usage: python server.py $CONF_FILE'
+        exit(1)
+
+    fname = sys.argv[1]
+    config = _read_conf(fname)
+
+    port = config['port']
+    log_dir = config['log_dir']
+
+    if not os.path.isdir(log_dir):
+        print 'Log directory directory ' + log_dir + ' does not exist! Terminating!'
+        exit(1)
+
     urls = ('/', 'schedule')
     app = web.application(urls, globals())
-    app.run()
+    web.httpserver.runsimple(app.wsgifunc(), ("0.0.0.0", port))
