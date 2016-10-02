@@ -22,5 +22,5 @@ if __name__ == '__main__':
 
     req = requests.post(url, data=data)
 
-    print 'Response:'
+    print 'Response, status: ' + str(req.status_code) + ':'
     print req.text

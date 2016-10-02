@@ -172,11 +172,19 @@ class schedule:
             if log.isEnabledFor(logging.INFO):
                 log.info('request processed, returning result ...')
 
+            raise ValueError('Testing error ...')
+
             web.header('Content-Type', 'application/json')
             return json.dumps(result)
+        except ValueError, e:
+            _log_data(data_str)
+            log.exception('Exception while processing request!')
+            # web.output(str(e))
+            raise web.badrequest(str(e))
         except:
             _log_data(data_str)
             log.exception('Exception while processing request!')
+            raise web.internalerror()
 
 
 if __name__ == '__main__':
