@@ -146,7 +146,7 @@ def process_schedule(data):
         if not match in used_matches:
             cost = pair_cost_h[match]
             used_matches.add(match)
-            matches.append({ 'id1': id1, 'id2': id2, 'cost': cost })
+            matches.append({ 'id1': id1, 'id2': id2 })
             total_cost += pair_cost_h[match]
 
     result = { 'cost': total_cost, 'matches': matches }
