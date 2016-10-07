@@ -78,8 +78,6 @@ def _transform(data):
             raise ValueError('Match ' + str(pair) + ' appears twice!')
         if math.isnan(cost):
             raise ValueError('Cost for match ' + str((id1,id2)) + ' is NaN!')
-        if cost < 0:
-            raise ValueError('Cost for match ' + str((id1,id2)) + 'is negative!')
         if id1 == id2:
             raise ValueError('Player ' + id1 + ' is playing against himself!')
 
