@@ -4,3 +4,6 @@ tags
 
 # Python files
 *.pyc
+
+# Vim files
+.vimrc
