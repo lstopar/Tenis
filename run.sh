@@ -1,7 +1,8 @@
 #!/bin/bash
 
 if [ $# -ne 1 ]; then
-    echo 'Usage: run.sh $PORT $CONFIG_FILE'
+    echo 'Usage: run.sh $CONFIG_FILE'
+    exit 1
 fi
 
 CONF_FILE=$1

@@ -4,8 +4,10 @@
 \usepackage{fullpage} % changes the margin
 \usepackage{amsfonts}
 \usepackage{mathtools}
+\usepackage{color}
 
 \newcommand*\mean[1]{\bar{#1}}
+\newcommand{\highlight}[1]{\textcolor{red}{#1}}
 
 \begin{document}
 %Header-Make sure you update this information!!!!
@@ -68,9 +70,9 @@ kjer $d(i)$ predstavlja skupno stevilo dobljenih gemov igralca $i$ od zacetka li
 \subsection{Kazen za medsebojne tekme $f_3$}
 
 \begin{equation}
-	f_3(i,j) = n_{ij}
+    \highlight{f_3(i,j) = 10^{n_{ij}} - 1}
 \end{equation}
-kjer $n_{ij}$ predstavlja stevilo medsebojnih tekem igralcev $i$ in $j$ od zacetka lige.
+kjer $n_{ij}$ predstavlja stevilo medsebojnih tekem igralcev $i$ in $j$ od zacetka lige \highlight{(se pravi v trenutni sezoni)}.
 
 \subsection{Kazen za igranje v zadnjem letu $f_4$}
 
@@ -101,7 +103,7 @@ kjer je $n(i)$ stevilo tekem, ki jih je odigral igralec $i$ od zacetka lige in $
 \begin{eqnarray}
 	w_1 &=& 0 \\ \nonumber
 	w_2 &=& 0 \\ \nonumber
-	w_3 &=& 100 \\ \nonumber
+	w_3 &=& 1000 \\ \nonumber
 	w_4 &=& 10 \\ \nonumber
 	w_5 &=& 1
 \end{eqnarray}

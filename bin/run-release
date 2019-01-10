@@ -1,0 +1,6 @@
+#!/bin/bash
+
+back=`pwd`
+cd ..
+./run.sh config.json 
+cd $back

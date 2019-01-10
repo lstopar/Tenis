@@ -1,5 +1,6 @@
 # Vim files
 *.swp
+tags
 
 # Python files
 *.pyc

@@ -164,6 +164,11 @@ class schedule:
             if (log.isEnabledFor(logging.INFO)):
                 log.info('received new request ...')
 
+            if log.isEnabledFor(logging.INFO):
+                log.info('logging data ...')
+
+            _log_data(data_str)
+
             data = json.loads(data_str)
             result = process_schedule(data)
             
