@@ -27,7 +27,7 @@ log_dir = None
 
 def _read_conf(fname):
     log.info('Reading configuration from file: \'' + fname + '\' ...')
-    
+
     if not os.path.isfile(fname):
         print 'Configuration file: \'' + fname + '\' missing!'
         exit(2)
@@ -40,7 +40,7 @@ def _read_conf(fname):
 
 def _log_data(data_str):
     log.info('Writing input data to directory: \'' + log_dir + '\'')
-    fname = log_dir + str(time.time()).replace('.', '') + '-data.log'
+    fname = os.path.join(log_dir, str(time.time()).replace('.', '') + '-data.log')
     f = open(fname, 'w')
     f.write(data_str)
     f.flush()
@@ -171,7 +171,7 @@ class schedule:
 
             data = json.loads(data_str)
             result = process_schedule(data)
-            
+
             if log.isEnabledFor(logging.INFO):
                 log.info('request processed, returning result ...')
 

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+echo "deleting old container"
+docker stop lstopar-tennis
+docker rm lstopar-tennis
+
+echo "starting the container"
+docker run \
+    -p 8818:8080 \
+    --restart=unless-stopped \
+    --mount 'type=bind,src=/var/log/tennis,dst=/var/log/tennis' \
+    --name=lstopar-tennis \
+    -d
+    lstopar/tennis

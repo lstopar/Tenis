@@ -7,3 +7,6 @@ tags
 
 # Vim files
 .vimrc
+
+# log files
+*.log

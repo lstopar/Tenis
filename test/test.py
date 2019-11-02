@@ -6,7 +6,7 @@ if len(sys.argv) <= 1:
     exit(1)
 
 fname = sys.argv[1]
-url = 'http://' + sys.argv[2] + '/' if len(sys.argv) >= 3 else 'http://localhost:8987/'
+url = sys.argv[2] if len(sys.argv) >= 3 else 'http://localhost:8818/'
 
 def read_file(fname):
     f = open(fname, 'r')
@@ -16,7 +16,7 @@ def read_file(fname):
 
 if __name__ == '__main__':
     data = read_file(fname)
-    
+
     print 'data:'
     print data
 
